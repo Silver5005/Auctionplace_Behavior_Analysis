@@ -36,8 +36,9 @@ It appears lower starting prices does indeed produce more total bids/interest, e
 
 Alternatively, lets take a look at high starting bids; do they actually lead to higher final prices?:
 
+![finalprice](https://user-images.githubusercontent.com/34739163/43707865-47cf30e6-9926-11e8-8343-4646d91121fa.png)
 
-We can see 7 day auctions (the most popular), tend to produce higher average prices, and this was the auction with
+We can see 7 day auctions (the most popular), tend to produce higher average prices. This was the auction with
 on average the lowest starting bid.  i.e higher opening bids do not mean higher final prices.
 
 Lastly, we can see if a higher final price correlates to a higher overall gain for the seller:
