@@ -6,24 +6,26 @@ library(RColorBrewer) # data visualization
 library(extrafont)
 library(gridExtra)
 
-#load in Ebay data
+# Load in Ebay data
 ebay_cartier <- read.csv("../Desktop/R coding/Data/EbayAuctions.csv", header = T) %>%
   filter(item == "Xbox game console") %>% 
   tbl_df()
 head(ebay_cartier)
 
+# Initialize variables
 str(ebay_cartier)
-# number of auctions
+# Number of auctions
 n_distinct(ebay_cartier$auctionid) 
-# average final price of an item
+# Average final price of an item
 round(mean(ebay_cartier$price)) 
 
+# Set text theme
 text_theme <- theme(text = element_text(size = 10, 
                                         family = "Verdana", 
                                         face = "italic"),
                     plot.title = element_text(hjust = 0.5))
 
-# distribution of prices
+# Distribution of prices (graph 1)
 ggplot(ebay_cartier, 
        aes(x = price)) + 
   geom_histogram(binwidth = 85, 
@@ -39,57 +41,25 @@ ggplot(ebay_cartier,
 
 #--------------------------------------------------------------------------------------------
 
-# adding new factor variable
+# Adding new factor variable: Auction Length
 ebay_cartier$auction_type_f <- factor(ebay_cartier$auction_type, 
                                       labels = c("3 days", "5 days", "7 days"))
 
-# distribution of auction types (by length)
+# Number of each auction type (graph 2)
 ggplot(ebay_cartier, 
        aes(x = factor(1), 
            fill = auction_type_f)) +
   geom_bar(width = 3) +
-  ggtitle("Auctions' bid distribution per type") +
+  ggtitle("Auctions' per type") +
   coord_polar(theta = "y") +
   labs(fill= "Type of auction") +
   scale_fill_brewer(palette = "PRGn") +
   xlab(NULL) + ylab(NULL) +
   text_theme 
 
-# select what we need for further analysis
-auctions <- ebay_cartier %>% 
-  select(contains('id'), price, auction_type_f, -bidtime) %>%
-  unique() # to make sure there is no repetitions
-
-#---------------------------------------------------------------------
-
-# few ggplot complements 
-bar_auction_type <- geom_bar(aes(fill = auction_type_f), 
-                             stat = "count")
-
-palette <- scale_fill_brewer(palette = "Set2") 
-
-
-# We can draw a table: number of auction per type
-auctions %>%  
-  group_by(auction_type_f) %>%
-  summarize(n_auctions = n_distinct(auctionid))
-
-# Or a bar chart with the same results:
-# distribution of auction types for Xbox console
-bar_p1<- ggplot(auctions %>% filter(price == bid),
-                aes(x = auction_type_f)) +
-  bar_auction_type +
-  palette + 
-  labs(title = "Xbox sales", 
-       x = "Type of an eBay auction", 
-       y = "Number of auctions") +
-  guides(fill = F) +
-  text_theme +
-  coord_cartesian(ylim = c(0,100))
-grid.arrange(bar_p1)
-
+# It appears 7 day auctions are more popular than 5 or 3 day alternatives.
 #---------------------------------------------------------------------------
-#Checks distribution of bids per auction type to determine best time frame for sellers
+# Checks distribution of bids per auction type: Determine best time frame for sellers (graph 3)
 
 bar_p2 <- auctions %>% 
   select(auctionid, auction_type_f, bid) %>%
@@ -105,12 +75,18 @@ bar_p2 <- auctions %>%
 
 grid.arrange(bar_p2)
 
-#The most common auction type has the most bids, as should be expect.  What happens when we filter for low starting price?
+
+# The most common auction type has the most bids, as should be expect.  
+#---------------------------------------------------------------------------
+
+# What happens when we filter for low starting price?
 #Checks low vs high starting prices to see optimal selling strategy.
 
+# Violen graph to display distribution (graph 4)
 violin_auction_type <- geom_violin(aes(fill = auction_type_f), 
                                    col = "white", scale = "area",  alpha = 0.5) 
-
+# ggplot for visualization
+# Bids at various starting prices, seperated by auction type
 ggplot(auctions, 
        aes(x = auction_type_f, y = openbid)) + 
   violin_auction_type +
@@ -123,12 +99,10 @@ ggplot(auctions,
   text_theme +
   coord_cartesian(ylim = c(0, 150)) # few outliers masked
 
-#Bids at various starting prices, seperated by auction type
-#It appears lower starting prices does indeed produce more total bids/interest, especially for 7 day auctions.
+# It appears lower starting prices does indeed produce more total bids/interest, especially for 7 day auctions.
+#---------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------------------------------------------------
-#Lets take a look at high starting bids; do they actually lead to higher final prices?
-
+#Lets take a look at high starting bids; do they actually lead to higher final prices? (graph 5)
 ggplot(auctions, 
        aes(x = auction_type_f, y = price)) + 
   geom_boxplot(aes(fill = auction_type_f), 
@@ -139,19 +113,18 @@ ggplot(auctions,
   guides(fill = F) +
   scale_fill_brewer(palette = "PRGn") + 
   text_theme + 
-  coord_cartesian(ylim = c(0, 500)) # few outliers masked
+  coord_cartesian(ylim = c(0, 400)) # few outliers masked
 
-#We can see 7 day auctions (the most popular), tend to produce higher average prices, and this was the auction with
+# We can see 7 day auctions (the most popular), tend to produce higher average prices, and this was the auction with
 #on average the lowest starting bid.  i.e higher opening bids do not mean higher final prices.
+#---------------------------------------------------------------------------
 
-
-#But does the higher price mean the higher gain for seller?
-
+# But does the higher price mean the higher gain for seller?
 # add new column to auctions: seller_gain 
-auctions <- auctions %>% 
+auctions <- auctions %>%
   mutate(seller_gain = price - openbid)
 
-# relationship between seller gain and final price
+# Relationship between seller gain and final price (graph 6)
 ggplot(auctions, 
        aes(x = seller_gain, y = price)) + 
   geom_jitter(alpha = 0.3, col = "lightgrey") +
@@ -164,4 +137,4 @@ ggplot(auctions,
   text_theme +
   coord_cartesian(ylim = c(0, 500))
 
-#The majority of the time, it appears it does.
+# The majority of the time, it appears a higher price does correlate to a higher gain.
