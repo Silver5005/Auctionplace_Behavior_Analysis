@@ -1,3 +1,4 @@
+# Analyze Ebay auction data in order to draw conclusion from seller/buyer behavior.
 library(pacman) # package for loading packages
 library(dplyr)# data manipulation and pipes
 library(ggplot2)
