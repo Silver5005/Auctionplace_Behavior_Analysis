@@ -44,3 +44,5 @@ on average the lowest starting bid.  i.e higher opening bids do not mean higher 
 Lastly, we can see if a higher final price correlates to a higher overall gain for the seller:
 
 ![sellergain](https://user-images.githubusercontent.com/34739163/43706875-cc45a86c-9923-11e8-8af7-1c8ddd22dbec.png)
+
+This particular dataset shows that indeed a higher price does correlate with a higher net gain for seller.
